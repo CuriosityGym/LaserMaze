@@ -7,13 +7,14 @@ CGShield fs;             // Instanciate CGShield instance
 #define TRIGMODE 2
 #define ARMAFTER 5000
 #define TRIGGERAFTER 50
+#define THRESHOLD 200
 
 byte RED[] =  { 255,   0,   0};
 byte GREEN[] ={   0, 255,   0};
 byte BLUE[] = {   0,   0, 255};
 
-int lastCheckedTime=millis();
-int lastCheckedArmedTime=millis();
+unsigned long int lastCheckedTime=millis();
+unsigned long int lastCheckedArmedTime=millis();
 byte currentmode=IDLEMODE;
 // the setup routine runs once when you press reset:
 void setup() {
@@ -27,8 +28,13 @@ void loop()
 {
   
   int sensorValue = analogRead(A0);
-  
-  if(sensorValue<100 && currentmode==IDLEMODE)// Laser light fell on the Sensor
+  Serial.print(sensorValue);
+  Serial.print("/");
+  Serial.print(currentmode);
+  Serial.print("/");
+  Serial.print(lastCheckedTime);
+  Serial.println("");
+  if(sensorValue<THRESHOLD && currentmode==IDLEMODE)// Laser light fell on the Sensor
   {
     //Serial.println("Inside");
     //Serial.println(millis()-lastCheckedTime);
@@ -44,7 +50,7 @@ void loop()
   }
   
 // Device was armed successfully, but the laser has been interrupted, sensor value went above threshold
-  if(sensorValue>100 && currentmode==ARMEDMODE )
+  if(sensorValue>THRESHOLD && currentmode==ARMEDMODE )
   {
     if((millis()-lastCheckedArmedTime)>TRIGGERAFTER)//Wait for TRIGGERAFTER milliseconds to ensure the laser has been triggered
     {
